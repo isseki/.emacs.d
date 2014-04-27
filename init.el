@@ -84,3 +84,18 @@
 (require 'helm-config)
 (setq helm-input-idle-delay 0.01)
 (helm-mode 1)
+
+;; shell
+(when (eq system-type 'windows-nt)
+  (setq shell-file-name "C:/MinGW/msys/1.0/bin/bash")
+  (setq explicit-shell-file-name shell-file-name)
+  (setenv "PATH"
+      (concat ".:/usr/local/bin:/mingw/bin:/bin:"
+          (replace-regexp-in-string " " "\\\\ "
+              (replace-regexp-in-string "\\\\" "/"
+                  (replace-regexp-in-string "\\([A-Za-z]\\):" "/\\1"
+                      (getenv "PATH")))))))
+
+;; shell-pop
+(require-package 'shell-pop)
+(define-key global-map (kbd "C-,") 'shell-pop)

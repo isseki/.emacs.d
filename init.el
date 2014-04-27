@@ -11,8 +11,22 @@
 (add-to-list 'default-frame-alist '(cursor-color . "green"))
 (add-to-list 'default-frame-alist '(alpha . 85))
 
+;; Font
+(defun set-default-font (name)
+  (let ((font (find-font (font-spec :name name))))
+    (when font
+      (set-frame-font font)
+      (add-hook 'after-make-frame-functions
+		(lambda (&rest frame)
+		  (set-frame-font font t (list (car frame))))))))
+(set-default-font "PC-98 Fixed Font")
+
 ;; Stop beep sound
 (setq ring-bell-function 'ignore)
+
+;; Set home directory
+(defvar user-home-directory (expand-file-name "~"))
+(setq default-directory user-home-directory)
 
 ;; Set load path
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
@@ -52,3 +66,21 @@
 (global-hl-line-mode 1)
 (set-face-background 'highlight "#222222")
 
+;; smooth-scrolling
+(require-package 'smooth-scrolling)
+
+;; auto-complete
+(require-package 'auto-complete)
+(require 'auto-complete-config)
+(ac-config-default)
+(setq ac-auto-show-menu t
+      ac-show-menu-immediately-on-auto-complete t
+      ac-use-quick-help t
+      ac-quick-help-delay 0.2
+      ac-quick-help-height 40)
+
+;; helm
+(require-package 'helm)
+(require 'helm-config)
+(setq helm-input-idle-delay 0.01)
+(helm-mode 1)

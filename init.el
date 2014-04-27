@@ -99,3 +99,8 @@
 ;; shell-pop
 (require-package 'shell-pop)
 (define-key global-map (kbd "C-,") 'shell-pop)
+
+;; SLIME
+(require-package 'slime)
+(slime-setup '(slime-repl))
+(setq inferior-lisp-program "sbcl")

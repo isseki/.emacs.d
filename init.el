@@ -12,14 +12,15 @@
 (add-to-list 'default-frame-alist '(alpha . 85))
 
 ;; Font
-(defun set-default-font (name)
-  (let ((font (find-font (font-spec :name name))))
-    (when font
-      (set-frame-font font)
-      (add-hook 'after-make-frame-functions
-		(lambda (&rest frame)
-		  (set-frame-font font t (list (car frame))))))))
-(set-default-font "PC-98 Fixed Font")
+(when (eq system-type 'windows-nt)
+  (defun monospaced-font ()
+    (find-font (font-spec :name "PC-98 Fixed Font")))
+  (defun set-default-font ()
+    (set-frame-font (monospaced-font))
+    (add-hook 'after-make-frame-functions
+	      (lambda (&rest frame)
+		(set-frame-font (monospaced-font) t (list (car frame))))))
+  (set-default-font))
 
 ;; Stop beep sound
 (setq ring-bell-function 'ignore)
@@ -30,6 +31,9 @@
 
 ;; Set load path
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+
+;; Key
+(global-set-key (kbd "C-h") 'delete-backward-char)
 
 ;; package
 (require 'package)
@@ -49,12 +53,15 @@
 (require-package 'surround)
 (global-surround-mode 1)
 
-;; smartparens
-(require-package 'smartparens)
-(smartparens-global-mode t)
-(add-hook 'prog-mode-hook
-	  (lambda () (turn-on-smartparens-strict-mode)))
-(show-smartparens-global-mode t)
+;; paredit
+(require-package 'paredit)
+(add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode)
+(add-hook 'lisp-mode-hook #'enable-paredit-mode)
+(add-hook 'ielm-mode-hook #'enable-paredit-mode)
+(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+
+;; paren-mode
+(show-paren-mode 1)
 
 ;; highlight-parentheses
 (require-package 'highlight-parentheses)
@@ -84,6 +91,7 @@
 (require 'helm-config)
 (setq helm-input-idle-delay 0.01)
 (helm-mode 1)
+(global-set-key (kbd "C-c h") 'helm-mini)
 
 ;; shell
 (when (eq system-type 'windows-nt)
@@ -98,9 +106,10 @@
 
 ;; shell-pop
 (require-package 'shell-pop)
-(define-key global-map (kbd "C-,") 'shell-pop)
+(global-set-key (kbd "C-,") 'shell-pop)
 
 ;; SLIME
 (require-package 'slime)
 (slime-setup '(slime-repl))
 (setq inferior-lisp-program "sbcl")
+(add-hook 'lisp-mode-hook (lambda () (slime-mode t)))

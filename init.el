@@ -1,3 +1,5 @@
+(require 'cl-lib)
+
 ;; Don't show up splash page
 (setq inhibit-startup-message t)
 (when (fboundp 'menu-bar-mode) (menu-bar-mode (if (display-graphic-p) 1 -1)))
@@ -12,15 +14,19 @@
 (add-to-list 'default-frame-alist '(alpha . 85))
 
 ;; Font
-(when (eq system-type 'windows-nt)
-  (defun monospaced-font ()
-    (find-font (font-spec :name "PC-98 Fixed Font")))
-  (defun set-default-font ()
+(defun monospaced-font ()
+  (let ((font-list (list "PC-98 Fixed Font"
+			 "Ricty-14")))
+    (cl-loop for f in font-list
+	     when (find-font (font-spec :name f))
+	     return f)))
+(defun set-default-font ()
+  (when (monospaced-font)
     (set-frame-font (monospaced-font))
     (add-hook 'after-make-frame-functions
 	      (lambda (&rest frame)
-		(set-frame-font (monospaced-font) t (list (car frame))))))
-  (set-default-font))
+		(set-frame-font (monospaced-font) t (list (car frame)))))))
+(set-default-font)
 
 ;; Stop beep sound
 (setq ring-bell-function 'ignore)
